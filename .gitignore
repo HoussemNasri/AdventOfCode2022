@@ -1,0 +1,24 @@
+# https://alvinalexander.com/source-code/scala/sample-gitignore-file-scala-sbt-intellij-eclipse/
+# bloop and metals
+.bloop
+.bsp
+.metals
+project/metals.sbt
+
+# scala 3
+.tasty
+
+# sbt
+project/project/
+project/target/
+target/
+
+# intellij idea
+*.log
+*.iml
+*.ipr
+*.iws
+.idea
+
+# general
+*.class
