@@ -22,5 +22,5 @@ def readInput(dayNumber: Int): List[String] = {
   val inputLines = inputSource.getLines().toList
   inputSource.close()
 
-  return inputLines
+  inputLines
 }
