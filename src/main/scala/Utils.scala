@@ -5,7 +5,7 @@ import java.nio.file.Files
 import scala.io.Source
 
 /**
- * Reads and Returns the lines of advent of code input for the given day
+ * Reads the input file and returns the list of advent of code inputs for the given day
  * */
 def readInput(dayNumber: Int): List[String] = {
   val inputFile = new File(s"./src/main/scala/day0$dayNumber/Day0$dayNumber.txt")
