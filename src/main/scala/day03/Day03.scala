@@ -11,6 +11,12 @@ def main(): Unit = {
     }
   }
 
+  def toTuple3[A](list: List[A]): (A, A, A) = {
+    list match
+      case item1 :: item2 :: item3 :: Nil => (item1, item2, item3)
+      case _ => throw new IllegalStateException()
+  }
+
   def partOne(input: List[String]): Int = {
     input.map(rucksack => rucksack.splitAt(rucksack.length / 2))
       .map((fHalf: String, sHalf: String) => fHalf.intersect(sHalf))
@@ -18,11 +24,9 @@ def main(): Unit = {
   }
 
   def partTwo(input: List[String]): Int = {
-    input.grouped(3).map(elfGroup => {
-      elfGroup match
-        case fRucksack :: sRuckSack :: tRuckSack :: Nil => fRucksack.intersect(sRuckSack).intersect(tRuckSack)
-        case _ => throw new IllegalStateException()
-    }).map(str => computeItemPriority(str.charAt(0))).sum
+    input.grouped(3).map(toTuple3)
+      .map((fRucksack, sRucksack, tRucksack) => fRucksack.intersect(sRucksack).intersect(tRucksack))
+      .map(str => computeItemPriority(str.charAt(0))).sum
   }
 
   val input = readInput(dayNumber = 3)
