@@ -31,9 +31,9 @@ def main(): Unit = {
   }
 
   def partTwo(input: List[String]): Int = {
-    val strategyGuideRounds = input.map(extractRoundInput)
+    val roundsInput = input.map(extractRoundInput)
     var totalScore = 0
-    for (opponent: Char, expectedResult: Char) <- strategyGuideRounds do {
+    for (opponent: Char, expectedResult: Char) <- roundsInput do {
       val expectedPlayerScore = if (expectedResult == 'X') 0 else if (expectedResult == 'Y') 3 else 6
       val player = rockPaperScissorsScoreLookup.find(p => p._1._1 == opponent && p._2 == expectedPlayerScore).get._1._2
       totalScore += player - 'X' + 1
