@@ -11,12 +11,6 @@ def main(): Unit = {
     }
   }
 
-  def toTuple3[A](list: List[A]): (A, A, A) = {
-    list match
-      case item1 :: item2 :: item3 :: Nil => (item1, item2, item3)
-      case _ => throw new IllegalStateException()
-  }
-
   def partOne(input: List[String]): Int = {
     input.map(rucksack => rucksack.splitAt(rucksack.length / 2))
       .map((fHalf: String, sHalf: String) => fHalf.intersect(sHalf))
