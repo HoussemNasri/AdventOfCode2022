@@ -24,3 +24,9 @@ def readInput(dayNumber: Int): List[String] = {
 
   inputLines
 }
+
+def toTuple2[A](list: Iterable[A]): (A, A) = {
+  list match
+    case item1 :: item2 :: Nil => (item1, item2)
+    case _ => throw new IllegalStateException()
+}
