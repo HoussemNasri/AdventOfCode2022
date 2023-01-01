@@ -9,6 +9,12 @@ import scala.collection.mutable
 @main
 def main(): Unit = {
 
+  def indices(grid: Array[Array[Int]]): Seq[(Int, Int)] =
+    for {
+      row <- grid.indices
+      column <- grid.head.indices
+    } yield (row, column)
+
   def createMaxLookupTables(grid: Array[Array[Int]]) = {
     val gridSize = grid.length
 
@@ -82,112 +88,58 @@ def main(): Unit = {
     result
   }
 
+  // Took from https://github.com/AvaPL/Advent-of-Code-2022/tree/main/src/main/scala/day8
   def partTwo(input: List[String]): Int = {
-    val gridSize = input.size
-
     val grid = createGridFromInput(input)
+    indices(grid).map { case (row, column) =>
+      scenicScore(grid, row, column)
+    }.max
+  }
 
-    val (leftToRightMaxLookup, rightToLeftMaxLookup, topToBottomMaxLookup, bottomToTopMaxLookup) = createMaxLookupTables(grid)
-    val numberOfSmallerTreesOnLeftLookup = Array.ofDim[Int](gridSize, gridSize)
-    val numberOfSmallerTreesOnRightLookup = Array.ofDim[Int](gridSize, gridSize)
-    val numberOfSmallerTreesOnTopLookup = Array.ofDim[Int](gridSize, gridSize)
-    val numberOfSmallerTreesOnBottomLookup = Array.ofDim[Int](gridSize, gridSize)
+  def scenicScore(grid: Array[Array[Int]], row: Int, column: Int) =
+    Seq(
+      topScenicScore _,
+      bottomScenicScore _,
+      leftScenicScore _,
+      rightScenicScore _
+    )
+      .map(_(grid, row, column))
+      .product
 
-    for (row <- 0 until gridSize) {
-      numberOfSmallerTreesOnLeftLookup(row)(0) = 0
-      for (i <- 1 until gridSize) {
-        val element = grid(row)(i)
-        val prevElement = grid(row)(i - 1)
-        if (element > prevElement) {
-          if (element >= leftToRightMaxLookup(row)(i)) {
-            numberOfSmallerTreesOnLeftLookup(row)(i) = i
-          } else {
-            numberOfSmallerTreesOnLeftLookup(row)(i) = numberOfSmallerTreesOnLeftLookup(row)(i - 1) + 1
-          }
-        } else if (element <= prevElement) {
-          numberOfSmallerTreesOnLeftLookup(row)(i) = 1
-        }
-      }
-      // println("Waa " + numberOfSmallerTreesOnLeftLookup(row).mkString(", "))
+  def topScenicScore(grid: Array[Array[Int]], row: Int, column: Int) = {
+    var topScore = 0
+    (0 until row).findLast { aboveIndex =>
+      topScore += 1
+      grid(aboveIndex)(column) >= grid(row)(column)
     }
+    topScore
+  }
 
-    println()
-
-    for (row <- 0 until gridSize) {
-      numberOfSmallerTreesOnRightLookup(row)(gridSize - 1) = 0
-      var wall = -1
-      var wallIndex = gridSize - 1
-      for (i <- gridSize - 2 to 0 by -1) {
-        val element = grid(row)(i)
-        val prevElement = grid(row)(i + 1)
-        if (element > prevElement) {
-          if (element >= wall) {
-            numberOfSmallerTreesOnRightLookup(row)(i) = wallIndex - i + (if (wallIndex == gridSize - 1) 0 else 1)
-          } else {
-            numberOfSmallerTreesOnRightLookup(row)(i) = numberOfSmallerTreesOnRightLookup(row)(i + 1) + 1
-          }
-        } else if (element <= prevElement) {
-          wall = prevElement
-          wallIndex = i + 1
-          numberOfSmallerTreesOnRightLookup(row)(i) = 1
-        }
-      }
-      // println("KAA " + numberOfSmallerTreesOnRightLookup(row).mkString(", "))
+  def bottomScenicScore(grid: Array[Array[Int]], row: Int, column: Int) = {
+    var bottomScore = 0
+    (row + 1 until grid.length).find { belowIndex =>
+      bottomScore += 1
+      grid(belowIndex)(column) >= grid(row)(column)
     }
+    bottomScore
+  }
 
-    for (column <- 0 until gridSize) {
-      numberOfSmallerTreesOnTopLookup(column)(0) = 0
-      for (i <- 1 until gridSize) {
-        val element = grid(i)(column)
-        val prevElement = grid(i - 1)(column)
-        if (element > prevElement) {
-          if (element >= topToBottomMaxLookup(column)(i)) {
-            numberOfSmallerTreesOnTopLookup(column)(i) = i
-          } else {
-            numberOfSmallerTreesOnTopLookup(column)(i) = numberOfSmallerTreesOnTopLookup(column)(i - 1) + 1
-          }
-        } else if (element <= prevElement) {
-          numberOfSmallerTreesOnTopLookup(column)(i) = 1
-        }
-      }
-      println("NNA " + numberOfSmallerTreesOnTopLookup(column).mkString(", "))
+  def leftScenicScore(grid: Array[Array[Int]], row: Int, column: Int) = {
+    var leftScore = 0
+    (0 until column).findLast { leftIndex =>
+      leftScore += 1
+      grid(row)(leftIndex) >= grid(row)(column)
     }
+    leftScore
+  }
 
-    for (column <- 0 until gridSize) {
-      numberOfSmallerTreesOnBottomLookup(column)(gridSize - 1) = 0
-      println(bottomToTopMaxLookup(column).mkString(", "))
-      for (i <- gridSize - 2 to 0 by -1) {
-        val element = grid(i)(column)
-        val prevElement = grid(i + 1)(column)
-        if (element > prevElement) {
-
-          if (element >= bottomToTopMaxLookup(column)(i)) {
-            println(gridSize - i - 1)
-            numberOfSmallerTreesOnBottomLookup(column)(i) = gridSize - i - 1
-          } else {
-            numberOfSmallerTreesOnBottomLookup(column)(i) = numberOfSmallerTreesOnBottomLookup(column)(i + 1) + 1
-          }
-        } else if (element <= prevElement) {
-          numberOfSmallerTreesOnBottomLookup(column)(i) = 1
-        }
-      }
-      println("KAWAAA " + numberOfSmallerTreesOnBottomLookup(column).mkString(", "))
+  def rightScenicScore(grid: Array[Array[Int]], row: Int, column: Int) = {
+    var rightScore = 0
+    (column + 1 until grid.head.length).find { rightIndex =>
+      rightScore += 1
+      grid(row)(rightIndex) >= grid(row)(column)
     }
-
-    val x = (0 until gridSize).flatMap(i => (0 until gridSize).map(j => (i, j)) ).map((i, j) => {
-      val res = numberOfSmallerTreesOnLeftLookup(i)(j) *
-        numberOfSmallerTreesOnRightLookup(i)(j) *
-        numberOfSmallerTreesOnTopLookup(j)(i) *
-        numberOfSmallerTreesOnBottomLookup(j)(i)
-      println(f"($i, $j)" + " =>" + res)
-        res
-    }).max
-    println(numberOfSmallerTreesOnLeftLookup(2)(3))
-    println(numberOfSmallerTreesOnRightLookup(2)(3))
-    println(numberOfSmallerTreesOnTopLookup(3)(2))
-    println(numberOfSmallerTreesOnBottomLookup(3)(2))
-    println(x)
-    -1
+    rightScore
   }
 
   val input = readInput(dayNumber = 8)
